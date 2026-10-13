@@ -1,0 +1,475 @@
+
+          <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Billing Calculator & Receipt Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        navy: {
+                            800: '#2c5282',
+                            900: '#1a365d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen font-sans antialiased pb-12">
+    <header class="bg-slate-900 text-white shadow-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-blue-600 rounded-lg text-white">
+                    <i class="fa-solid fa-bolt text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold leading-tight">Power Billing Calculator</h1>
+                    <p class="text-xs text-slate-400">Sub-meter share calculator & high-res receipt generator</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2 text-xs bg-slate-800/80 px-3 py-1.5 rounded-full border border-slate-700">
+                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="text-slate-300">Live Sync Enabled</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+            <div class="lg:col-span-5 space-y-6">
+                <!-- Form Container Card -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                            <i class="fa-solid fa-[#2c5282] fa-sliders text-blue-600"></i> Meter & Bill Parameters
+                        </h2>
+                        <button id="btnReset" class="text-xs text-slate-500 hover:text-blue-600 font-medium transition flex items-center gap-1">
+                            <i class="fa-solid fa-rotate-left"></i> Reset Defaults
+                        </button>
+                    </div>
+
+                    <!-- Billing Month -->
+                    <div>
+                        <label for="billingMonth" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
+                            Billing Month Header
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="billingMonth" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium transition" placeholder="e.g. AUGUST 2026">
+                            <span class="absolute right-3 top-2.5 text-xs text-slate-400 pointer-events-none" id="monthAutoTag">Auto</span>
+                        </div>
+                        <p class="text-[11px] text-slate-500 mt-1">Defaults to the previous calendar month from current date.</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Current Reading -->
+                        <div>
+                            <label for="currentReading" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
+                                Current Reading
+                            </label>
+                            <input type="number" step="0.1" id="currentReading" value="515.5" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-semibold text-slate-800 transition">
+                        </div>
+
+                        <!-- Previous Reading -->
+                        <div>
+                            <label for="previousReading" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
+                                Previous Reading
+                            </label>
+                            <input type="number" step="0.1" id="previousReading" value="491.4" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-semibold text-slate-800 transition">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- KPLC Units Used -->
+                        <div>
+                            <label for="kplcUnits" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
+                                KPLC Total Units
+                            </label>
+                            <input type="number" step="1" id="kplcUnits" value="340" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-semibold text-slate-800 transition">
+                        </div>
+
+                        <!-- KPLC Bill Amount -->
+                        <div>
+                            <label for="kplcBill" class="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
+                                KPLC Total Bill (KSh)
+                            </label>
+                            <input type="number" step="1" id="kplcBill" value="9407" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-semibold text-slate-800 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute -right-8 -bottom-8 opacity-10 text-9xl text-white pointer-events-none">
+                        <i class="fa-solid fa-calculator"></i>
+                    </div>
+
+                    <h3 class="text-sm font-medium text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">
+                        Calculated Summary Breakdown
+                    </h3>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-300">Sub-meter Consumption:</span>
+                            <span id="summarySubUnits" class="font-mono font-bold text-emerald-400 text-base">24.1 kWh</span>
+                        </div>
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-slate-300">Effective Unit Rate:</span>
+                            <span id="summaryRate" class="font-mono font-bold text-sky-400 text-base">KSh 27.67 / kWh</span>
+                        </div>
+                        <div class="pt-3 border-t border-slate-800 flex justify-between items-baseline">
+                            <span class="text-slate-200 text-base font-medium">Final Sub-meter Bill:</span>
+                            <span id="summaryTotal" class="font-bold text-2xl text-amber-300">KSh 666.79</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7 space-y-4">
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 flex flex-col items-center">
+                    <div class="w-full flex flex-wrap items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+                        <div>
+                            <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                                <i class="fa-regular fa-image text-blue-600"></i> Live Bill Preview
+                            </h2>
+                            <p class="text-xs text-slate-500">Real-time SVG view & high-res PNG/JPEG render engine</p>
+                        </div>
+                        
+                        <div class="flex items-center space-x-2">
+                            <button id="btnDownload" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-4 py-2 rounded-xl transition shadow-md hover:shadow-lg flex items-center gap-2">
+                                <i class="fa-solid fa-download"></i> Download JPEG
+                            </button>
+                            <button id="btnCopySvg" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-sm px-3 py-2 rounded-xl transition flex items-center gap-1.5" title="Copy SVG Source">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Interactive SVG Render Area -->
+                    <div id="svgContainer" class="w-full flex justify-center bg-slate-100 p-4 rounded-xl border border-slate-200 overflow-auto max-h-[700px] shadow-inner">
+                        <!-- SVG dynamically inserted here -->
+                    </div>
+
+                    <!-- Hidden high resolution canvas for rendering graphics -->
+                    <canvas id="exportCanvas" class="hidden"></canvas>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-3 transition transform translate-y-20 opacity-0 pointer-events-none z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg" class="text-sm font-medium">Notification message</span>
+    </div>
+
+    <script>
+        // DOM Elements
+        const currentReadingInput = document.getElementById('currentReading');
+        const previousReadingInput = document.getElementById('previousReading');
+        const kplcUnitsInput = document.getElementById('kplcUnits');
+        const kplcBillInput = document.getElementById('kplcBill');
+        const billingMonthInput = document.getElementById('billingMonth');
+        const btnReset = document.getElementById('btnReset');
+        const btnDownload = document.getElementById('btnDownload');
+        const btnCopySvg = document.getElementById('btnCopySvg');
+
+        const summarySubUnits = document.getElementById('summarySubUnits');
+        const summaryRate = document.getElementById('summaryRate');
+        const summaryTotal = document.getElementById('summaryTotal');
+
+        const svgContainer = document.getElementById('svgContainer');
+        const exportCanvas = document.getElementById('exportCanvas');
+
+        function getPreviousMonthYear() {
+            const date = new Date();
+            // Subtract one month
+            date.setMonth(date.getMonth() - 1);
+            const monthNames = [
+                "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
+                "JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"
+            ];
+            return `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        // Initialize default month text
+        const defaultMonthYear = getPreviousMonthYear();
+        billingMonthInput.value = defaultMonthYear;
+
+        // Get current timestamp formatted for EAT timezone (or local equivalent format requested)
+        function getFormattedTimestamp() {
+            const now = new Date();
+            const YYYY = now.getFullYear();
+            const MM = String(now.getMonth() + 1).padStart(2, '0');
+            const DD = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const mm = String(now.getMinutes()).padStart(2, '0');
+            const ss = String(now.getSeconds()).padStart(2, '0');
+            return `${YYYY}-${MM}-${DD} ${hh}:${mm}:${ss} EAT`;
+        }
+
+        function generateSVG(data) {
+            return `<?xml version='1.0' encoding='utf-8'?>
+<svg xmlns="http://www.w3.org/2000/svg"
+width="100%" height="100%" viewBox="0 0 720 1612"
+preserveAspectRatio="xMidYMid meet" style="background-color:
+#FFFFFF; display: block; margin: 0 auto;">
+<defs>
+<style>
+    .title {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; font-weight:
+bold; fill: #1a1a1a; }
+    .subtitle {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; font-weight:
+bold; fill: #4a5568; }
+    .header {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; font-weight:
+bold; fill: #333333; }
+    .body {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; font-weight:
+bold; fill: #000000; }
+    .label { font-family:
+'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; fill: #333333; }
+    .small {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; fill:
+#888888; }
+    .result-label {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; font-weight:
+bold; fill: #2c5282; }
+    .result-value {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; font-weight:
+bold; fill: #1a365d; }
+    .formula {
+font-family: 'DejaVu Sans', 'Liberation Sans', Arial, sans-serif; fill: #000000;
+}
+</style>
+</defs>
+<rect width="720" height="1612"
+fill="#FFFFFF" />
+<text x="360" y="100"
+class="title" font-size="56" text-anchor="middle"
+dominant-baseline="central">POWER BILLING</text>
+<text x="360" y="165"
+class="subtitle" font-size="36" text-anchor="middle"
+dominant-baseline="central">${data.monthYear}</text>
+<line x1="80" y1="220"
+x2="640" y2="220" stroke="#cccccc"
+stroke-width="2" />
+<text x="80" y="280"
+class="label" font-size="35" text-anchor="start"
+dominant-baseline="central">Current Reading:</text>
+<text x="640" y="280"
+class="body" font-size="35" text-anchor="end"
+dominant-baseline="central">${data.currentReading}</text>
+<text x="80" y="360"
+class="label" font-size="35" text-anchor="start"
+dominant-baseline="central">Previous Reading:</text>
+<text x="640" y="360"
+class="body" font-size="35" text-anchor="end"
+dominant-baseline="central">${data.previousReading}</text>
+<text x="80" y="440"
+class="label" font-size="35" text-anchor="start"
+dominant-baseline="central">KPLC Units used:</text>
+<text x="640" y="440"
+class="body" font-size="35" text-anchor="end"
+dominant-baseline="central">${data.kplcUnits}</text>
+<text x="80" y="520"
+class="label" font-size="35" text-anchor="start"
+dominant-baseline="central">KPLC Bill Amount:</text>
+<text x="640" y="520" class="body"
+font-size="35" text-anchor="end"
+dominant-baseline="central">KSh ${data.kplcBill}</text>
+<line x1="80" y1="640"
+x2="640" y2="640" stroke="#cccccc"
+stroke-width="2" />
+<text x="360" y="700"
+class="header" font-size="40"
+text-anchor="middle" dominant-baseline="central">CALCULATION</text>
+<text x="360" y="770"
+class="formula" font-size="35"
+text-anchor="middle" dominant-baseline="central">(${data.currentReading} − ${data.previousReading}) × (${data.kplcBill}/${data.kplcUnits})</text>
+<rect x="80" y="820"
+width="560" height="110" rx="15"
+ry="15" fill="#f8f9fa" stroke="#2c5282"
+stroke-width="3" />
+<text x="360" y="850"
+class="result-label" font-size="29"
+text-anchor="middle" dominant-baseline="central">BILL AMOUNT</text>
+<text x="360" y="895"
+class="result-value" font-size="48"
+text-anchor="middle" dominant-baseline="central">KSh ${data.finalBillFormatted}</text>
+<text x="360" y="1482"
+class="small" font-size="29" text-anchor="middle"
+dominant-baseline="central" fill="#888888">Generated: ${data.timestamp}</text>
+<text x="360" y="1532"
+class="small" font-size="29" text-anchor="middle"
+dominant-baseline="central">Internal billing calculations</text>
+</svg>`;
+        }
+
+        function updateCalculation() {
+            const currentVal = parseFloat(currentReadingInput.value) || 0;
+            const prevVal = parseFloat(previousReadingInput.value) || 0;
+            const unitsVal = parseFloat(kplcUnitsInput.value) || 0;
+            const billVal = parseFloat(kplcBillInput.value) || 0;
+            const monthYearVal = billingMonthInput.value.trim() || getPreviousMonthYear();
+
+            // Calculations
+            const subUnits = currentVal - prevVal;
+            const rate = unitsVal > 0 ? (billVal / unitsVal) : 0;
+            const finalBill = subUnits * rate;
+
+            // Formatted string values
+            const subUnitsFormatted = subUnits.toFixed(1);
+            const rateFormatted = rate.toFixed(2);
+            const finalBillFormatted = (isNaN(finalBill) || !isFinite(finalBill)) ? "0.00" : finalBill.toFixed(2);
+
+            // Update UI Summary Box
+            summarySubUnits.textContent = `${subUnitsFormatted} kWh`;
+            summaryRate.textContent = `KSh ${rateFormatted} / kWh`;
+            summaryTotal.textContent = `KSh ${finalBillFormatted}`;
+
+            // Generate fresh SVG
+            const svgData = {
+                monthYear: monthYearVal,
+                currentReading: currentReadingInput.value,
+                previousReading: previousReadingInput.value,
+                kplcUnits: kplcUnitsInput.value,
+                kplcBill: kplcBillInput.value,
+                finalBillFormatted: finalBillFormatted,
+                timestamp: getFormattedTimestamp()
+            };
+
+            const svgContent = generateSVG(svgData);
+            svgContainer.innerHTML = svgContent;
+        }
+
+        function downloadHighResJPEG() {
+            const svgElement = svgContainer.querySelector('svg');
+            if (!svgElement) return;
+
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgElement);
+            
+            // Native dimensions from SVG
+            const nativeWidth = 720;
+            const nativeHeight = 1612;
+
+            // High scale multiplier for super crisp JPEG
+            const scale = 2; 
+            exportCanvas.width = nativeWidth * scale;
+            exportCanvas.height = nativeHeight * scale;
+
+            const ctx = exportCanvas.getContext('2d');
+            const img = new Image();
+
+            // Convert SVG to Data URL safely
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const URL = window.URL || window.webkitURL || window;
+            const blobURL = URL.createObjectURL(svgBlob);
+
+            img.onload = function() {
+                // White background for JPEG export
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
+                
+                // Draw high resolution scaled image
+                ctx.drawImage(img, 0, 0, exportCanvas.width, exportCanvas.height);
+
+                // Convert Canvas to JPEG URL
+                const jpegUrl = exportCanvas.toDataURL('image/jpeg', 0.95);
+
+                // Create download link
+                const cleanMonthName = (billingMonthInput.value || 'Bill').replace(/[^a-zA-Z0-9]/g, '_');
+                const filename = `Power_Billing_${cleanMonthName}.jpg`;
+
+                const downloadLink = document.createElement('a');
+                downloadLink.href = jpegUrl;
+                downloadLink.download = filename;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+
+                URL.revokeObjectURL(blobURL);
+                showToast(`Downloaded ${filename} successfully!`);
+            };
+
+            img.src = blobURL;
+        }
+
+        // Copy SVG source to clipboard helper
+        function copySvgToClipboard() {
+            const svgElement = svgContainer.querySelector('svg');
+            if (!svgElement) return;
+            const serializer = new XMLSerializer();
+            const svgString = serializer.serializeToString(svgElement);
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(svgString).then(() => {
+                    showToast('SVG code copied to clipboard!');
+                }).catch(() => {
+                    fallbackCopy(svgString);
+                });
+            } else {
+                fallbackCopy(svgString);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            showToast('SVG code copied to clipboard!');
+        }
+
+        // Toast feedback trigger
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+
+        // Event Listeners
+        [currentReadingInput, previousReadingInput, kplcUnitsInput, kplcBillInput, billingMonthInput].forEach(input => {
+            input.addEventListener('input', updateCalculation);
+        });
+
+        btnReset.addEventListener('click', () => {
+            currentReadingInput.value = "515.5";
+            previousReadingInput.value = "491.4";
+            kplcUnitsInput.value = "340";
+            kplcBillInput.value = "9407";
+            billingMonthInput.value = getPreviousMonthYear();
+            updateCalculation();
+            showToast('Form reset to default values.');
+        });
+
+        btnDownload.addEventListener('click', downloadHighResJPEG);
+        btnCopySvg.addEventListener('click', copySvgToClipboard);
+
+        // Initial Calculation on Load
+        window.addEventListener('load', () => {
+            updateCalculation();
+        });
+    </script>
+</body>
+</html>  
